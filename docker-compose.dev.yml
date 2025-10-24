@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (mesmo da produção)
+  postgres:
+    image: postgres:16-alpine
+    container_name: taskmanager-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-taskuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-taskpass}
+      POSTGRES_DB: ${DB_NAME:-taskmanager}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-taskuser}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - taskmanager-network-dev
+
+  # NestJS Application (Development Mode)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: taskmanager-api-dev
+    restart: unless-stopped
+    ports:
+      - '${PORT:-3000}:3000'
+      - '9229:9229' # Debug port
+    environment:
+      NODE_ENV: development
+      PORT: ${PORT:-3000}
+      DATABASE_URL: postgresql://${DB_USER:-taskuser}:${DB_PASSWORD:-taskpass}@postgres:5432/${DB_NAME:-taskmanager}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-this-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
+    volumes:
+      - .:/app:cached
+      - /app/node_modules
+      - /app/dist
+      - /app/.nest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - taskmanager-network-dev
+    command: sh -c "rm -rf /app/dist /app/.nest && pnpm prisma:migrate:deploy && pnpm start:dev"
+
+volumes:
+  postgres_data_dev:
+    driver: local
+
+networks:
+  taskmanager-network-dev:
+    driver: bridge

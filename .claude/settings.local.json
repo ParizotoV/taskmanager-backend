@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//t/Testes/frontend/hooks/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

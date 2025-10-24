@@ -1,0 +1,26 @@
+#!/bin/sh
+
+echo "🔍 Running pre-push validations..."
+
+# Run build
+echo "📦 Building..."
+pnpm run build || {
+    echo "❌ Build failed"
+    exit 1
+}
+
+# Run tests
+echo "🧪 Testing..."
+pnpm test || {
+    echo "❌ Tests failed"
+    exit 1
+}
+
+# Run linter
+echo "🔧 Linting..."
+pnpm run lint || {
+    echo "❌ Lint failed"
+    exit 1
+}
+
+echo "✅ All validations passed!"

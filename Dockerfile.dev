@@ -1,0 +1,30 @@
+FROM node:20-alpine
+
+# Instalar pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Criar usuário não-root
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+
+WORKDIR /app
+
+# Copiar arquivos de dependências
+COPY --chown=nodejs:nodejs package.json pnpm-lock.yaml ./
+
+# Instalar dependências
+RUN pnpm install --frozen-lockfile
+
+# Copiar código fonte
+COPY --chown=nodejs:nodejs . .
+
+# Gerar Prisma Client
+RUN pnpm prisma:generate
+
+# Trocar para usuário não-root
+USER nodejs
+
+# Expor portas
+EXPOSE 3000 9229
+
+# Comando de desenvolvimento
+CMD ["sh", "-c", "rm -rf /app/dist && pnpm prisma:migrate:deploy && pnpm start:dev"]
