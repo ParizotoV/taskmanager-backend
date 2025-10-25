@@ -1,14 +1,22 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import { Priority, TaskStatus } from '@prisma/client'
 import { Type } from 'class-transformer'
-import { IsDateString, IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator'
+import {
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from 'class-validator'
 
 export class ListTasksQueryDto {
   @ApiPropertyOptional({
     description: 'Página atual',
     minimum: 1,
     default: 1,
-    example: 1
+    example: 1,
   })
   @IsOptional()
   @Type(() => Number)
@@ -21,7 +29,7 @@ export class ListTasksQueryDto {
     minimum: 1,
     maximum: 100,
     default: 10,
-    example: 10
+    example: 10,
   })
   @IsOptional()
   @Type(() => Number)
@@ -33,7 +41,7 @@ export class ListTasksQueryDto {
   @ApiPropertyOptional({
     description: 'Filtrar por status',
     enum: TaskStatus,
-    example: TaskStatus.PENDING
+    example: TaskStatus.PENDING,
   })
   @IsOptional()
   @IsEnum(TaskStatus)
@@ -42,7 +50,7 @@ export class ListTasksQueryDto {
   @ApiPropertyOptional({
     description: 'Filtrar por prioridade',
     enum: Priority,
-    example: Priority.HIGH
+    example: Priority.HIGH,
   })
   @IsOptional()
   @IsEnum(Priority)
@@ -50,7 +58,7 @@ export class ListTasksQueryDto {
 
   @ApiPropertyOptional({
     description: 'Buscar no título ou descrição',
-    example: 'autenticação'
+    example: 'autenticação',
   })
   @IsOptional()
   @IsString()
@@ -58,7 +66,7 @@ export class ListTasksQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filtrar por ID do usuário (apenas ADMIN)',
-    example: 'uuid-do-usuario'
+    example: 'uuid-do-usuario',
   })
   @IsOptional()
   @IsString()
@@ -66,7 +74,7 @@ export class ListTasksQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filtrar tarefas com prazo a partir de',
-    example: '2025-01-01'
+    example: '2025-01-01',
   })
   @IsOptional()
   @IsDateString()
@@ -74,7 +82,7 @@ export class ListTasksQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filtrar tarefas com prazo até',
-    example: '2025-12-31'
+    example: '2025-12-31',
   })
   @IsOptional()
   @IsDateString()
@@ -82,7 +90,7 @@ export class ListTasksQueryDto {
 
   @ApiPropertyOptional({
     description: 'Filtrar apenas tarefas atrasadas',
-    example: true
+    example: true,
   })
   @IsOptional()
   @Type(() => Boolean)
@@ -92,7 +100,7 @@ export class ListTasksQueryDto {
     description: 'Campo para ordenação',
     enum: ['createdAt', 'updatedAt', 'title', 'dueDate', 'priority', 'status'],
     default: 'createdAt',
-    example: 'createdAt'
+    example: 'createdAt',
   })
   @IsOptional()
   @IsString()
@@ -102,7 +110,7 @@ export class ListTasksQueryDto {
     description: 'Direção da ordenação',
     enum: ['asc', 'desc'],
     default: 'desc',
-    example: 'desc'
+    example: 'desc',
   })
   @IsOptional()
   @IsEnum(['asc', 'desc'])

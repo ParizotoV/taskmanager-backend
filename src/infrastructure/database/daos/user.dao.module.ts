@@ -13,4 +13,4 @@ import { Module } from '@nestjs/common'
   ],
   exports: [UserDao],
 })
-export class UserDaoModule { }
+export class UserDaoModule {}

@@ -1,7 +1,7 @@
-import { HealthModule } from '@/interfaces/http/api/health/health.module';
-import { ApiV1Module } from '@/interfaces/http/api/v1/api.v1.module';
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { HealthModule } from '@/interfaces/http/api/health/health.module'
+import { ApiV1Module } from '@/interfaces/http/api/v1/api.v1.module'
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
 
 @Module({
   imports: [
@@ -12,4 +12,4 @@ import { ConfigModule } from '@nestjs/config';
     HealthModule,
   ],
 })
-export class AppModule { }
+export class AppModule {}

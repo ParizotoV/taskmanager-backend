@@ -13,4 +13,4 @@ import { Module } from '@nestjs/common'
   ],
   exports: [TaskDao],
 })
-export class TaskDaoModule { }
+export class TaskDaoModule {}

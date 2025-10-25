@@ -1,14 +1,17 @@
-import { TaskDao } from '@/application/task/ports/task.dao';
-import { CreateTaskInputDto } from '@/application/task/usecases/dtos/create-task.usecase.dto';
-import { ListTaskInputDto, PaginatedTasksOutputDto } from '@/application/task/usecases/dtos/list-task.usecase.dto';
-import { UpdateTaskInputDto } from '@/application/task/usecases/dtos/update-task.usecase.dto';
-import { PRISMA, PrismaService } from '@/infrastructure/database/prisma';
-import { Inject, Injectable } from '@nestjs/common';
-import { Prisma, Task, TaskStatus } from '@prisma/client';
+import { TaskDao } from '@/application/task/ports/task.dao'
+import { CreateTaskInputDto } from '@/application/task/usecases/dtos/create-task.usecase.dto'
+import {
+  ListTaskInputDto,
+  PaginatedTasksOutputDto,
+} from '@/application/task/usecases/dtos/list-task.usecase.dto'
+import { UpdateTaskInputDto } from '@/application/task/usecases/dtos/update-task.usecase.dto'
+import { PRISMA, PrismaService } from '@/infrastructure/database/prisma'
+import { Inject, Injectable } from '@nestjs/common'
+import { Prisma, Task, TaskStatus } from '@prisma/client'
 
 @Injectable()
 export class PrismaTaskDao implements TaskDao {
-  constructor(@Inject(PRISMA) private readonly prisma: PrismaService) { }
+  constructor(@Inject(PRISMA) private readonly prisma: PrismaService) {}
 
   async createTask(input: CreateTaskInputDto, userId: string): Promise<Task> {
     return await this.prisma.task.create({
@@ -30,7 +33,7 @@ export class PrismaTaskDao implements TaskDao {
           },
         },
       },
-    });
+    })
   }
 
   async findById(id: string): Promise<Task | null> {
@@ -45,17 +48,13 @@ export class PrismaTaskDao implements TaskDao {
           },
         },
       },
-    });
+    })
   }
 
   async findByUserId(userId: string): Promise<Task[]> {
     return await this.prisma.task.findMany({
       where: { userId },
-      orderBy: [
-        { status: 'asc' },
-        { order: 'asc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ status: 'asc' }, { order: 'asc' }, { createdAt: 'desc' }],
       include: {
         user: {
           select: {
@@ -65,16 +64,12 @@ export class PrismaTaskDao implements TaskDao {
           },
         },
       },
-    });
+    })
   }
 
   async findAll(): Promise<Task[]> {
     return await this.prisma.task.findMany({
-      orderBy: [
-        { status: 'asc' },
-        { order: 'asc' },
-        { createdAt: 'desc' },
-      ],
+      orderBy: [{ status: 'asc' }, { order: 'asc' }, { createdAt: 'desc' }],
       include: {
         user: {
           select: {
@@ -84,13 +79,16 @@ export class PrismaTaskDao implements TaskDao {
           },
         },
       },
-    });
+    })
   }
 
-  async findWithFilters(input: ListTaskInputDto, userId?: string): Promise<PaginatedTasksOutputDto<Task>> {
-    const page = input.page ?? 1;
-    const limit = input.limit ?? 10;
-    const skip = (page - 1) * limit;
+  async findWithFilters(
+    input: ListTaskInputDto,
+    userId?: string,
+  ): Promise<PaginatedTasksOutputDto<Task>> {
+    const page = input.page ?? 1
+    const limit = input.limit ?? 10
+    const skip = (page - 1) * limit
 
     const where: Prisma.TaskWhereInput = {
       ...(userId && { userId }),
@@ -105,20 +103,20 @@ export class PrismaTaskDao implements TaskDao {
 
       ...(input.dueDateFrom || input.dueDateTo
         ? {
-          dueDate: {
-            ...(input.dueDateFrom && { gte: new Date(input.dueDateFrom) }),
-            ...(input.dueDateTo && { lte: new Date(input.dueDateTo) }),
-          },
-        }
+            dueDate: {
+              ...(input.dueDateFrom && { gte: new Date(input.dueDateFrom) }),
+              ...(input.dueDateTo && { lte: new Date(input.dueDateTo) }),
+            },
+          }
         : {}),
 
       ...(input.overdue && {
         dueDate: { lt: new Date() },
         status: { not: TaskStatus.COMPLETED },
       }),
-    };
+    }
 
-    const orderBy = this.buildOrderBy(input.sortBy, input.sortOrder);
+    const orderBy = this.buildOrderBy(input.sortBy, input.sortOrder)
 
     const [tasks, total] = await Promise.all([
       this.prisma.task.findMany({
@@ -137,9 +135,9 @@ export class PrismaTaskDao implements TaskDao {
         },
       }),
       this.prisma.task.count({ where }),
-    ]);
+    ])
 
-    const totalPages = Math.ceil(total / limit);
+    const totalPages = Math.ceil(total / limit)
 
     return {
       data: tasks,
@@ -151,7 +149,7 @@ export class PrismaTaskDao implements TaskDao {
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       },
-    };
+    }
   }
 
   async updateTask(id: string, input: UpdateTaskInputDto): Promise<Task> {
@@ -159,7 +157,9 @@ export class PrismaTaskDao implements TaskDao {
       where: { id },
       data: {
         ...(input.title && { title: input.title }),
-        ...(input.description !== undefined && { description: input.description }),
+        ...(input.description !== undefined && {
+          description: input.description,
+        }),
         ...(input.status && { status: input.status }),
         ...(input.priority && { priority: input.priority }),
         ...(input.dueDate !== undefined && {
@@ -176,10 +176,14 @@ export class PrismaTaskDao implements TaskDao {
           },
         },
       },
-    });
+    })
   }
 
-  async updateStatus(id: string, status: TaskStatus, order?: number): Promise<Task> {
+  async updateStatus(
+    id: string,
+    status: TaskStatus,
+    order?: number,
+  ): Promise<Task> {
     return await this.prisma.task.update({
       where: { id },
       data: {
@@ -195,7 +199,7 @@ export class PrismaTaskDao implements TaskDao {
           },
         },
       },
-    });
+    })
   }
 
   async updateOrder(id: string, order: number): Promise<Task> {
@@ -211,20 +215,20 @@ export class PrismaTaskDao implements TaskDao {
           },
         },
       },
-    });
+    })
   }
 
   async deleteTask(id: string): Promise<void> {
     await this.prisma.task.delete({
       where: { id },
-    });
+    })
   }
 
   private buildOrderBy(
     sortBy?: string,
-    sortOrder?: 'asc' | 'desc'
+    sortOrder?: 'asc' | 'desc',
   ): Prisma.TaskOrderByWithRelationInput {
-    const order = sortOrder ?? 'desc';
+    const order = sortOrder ?? 'desc'
 
     const orderByMap: Record<string, Prisma.TaskOrderByWithRelationInput> = {
       createdAt: { createdAt: order },
@@ -233,8 +237,8 @@ export class PrismaTaskDao implements TaskDao {
       dueDate: { dueDate: order },
       priority: { priority: order },
       status: { status: order },
-    };
+    }
 
-    return orderByMap[sortBy ?? 'createdAt'] || { createdAt: 'desc' };
+    return orderByMap[sortBy ?? 'createdAt'] || { createdAt: 'desc' }
   }
 }

@@ -1,12 +1,15 @@
-import { UserDao } from '@/application/auth/ports/user.dao';
-import { SignUpInputDto, SignUpOutputDto } from '@/application/auth/usecases/dtos/sign-up.usecase.dto';
-import { PRISMA, PrismaService } from '@/infrastructure/database/prisma';
-import { Inject, Injectable } from '@nestjs/common';
-import { Role, User } from '@prisma/client';
+import { UserDao } from '@/application/auth/ports/user.dao'
+import {
+  SignUpInputDto,
+  SignUpOutputDto,
+} from '@/application/auth/usecases/dtos/sign-up.usecase.dto'
+import { PRISMA, PrismaService } from '@/infrastructure/database/prisma'
+import { Inject, Injectable } from '@nestjs/common'
+import { Role, User } from '@prisma/client'
 
 @Injectable()
 export class PrismaUserDao implements UserDao {
-  constructor(@Inject(PRISMA) private readonly prisma: PrismaService) { }
+  constructor(@Inject(PRISMA) private readonly prisma: PrismaService) {}
 
   async createUser(input: SignUpInputDto): Promise<SignUpOutputDto> {
     const user = await this.prisma.user.create({
@@ -23,20 +26,20 @@ export class PrismaUserDao implements UserDao {
         role: true,
         createdAt: true,
       },
-    });
+    })
 
-    return user;
+    return user
   }
 
   async findByEmail(email: string): Promise<User | null> {
     return await this.prisma.user.findUnique({
       where: { email },
-    });
+    })
   }
 
   async findById(id: string): Promise<User | null> {
     return await this.prisma.user.findUnique({
       where: { id },
-    });
+    })
   }
 }

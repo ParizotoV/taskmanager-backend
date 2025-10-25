@@ -1,13 +1,22 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Priority, TaskStatus } from '@prisma/client'
-import { IsDateString, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min } from 'class-validator'
+import {
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  Min,
+} from 'class-validator'
 
 export class CreateTaskDto {
   @ApiProperty({
     description: 'Título da tarefa',
     example: 'Implementar autenticação JWT',
     minLength: 3,
-    maxLength: 100
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
@@ -17,7 +26,7 @@ export class CreateTaskDto {
   @ApiPropertyOptional({
     description: 'Descrição detalhada da tarefa',
     example: 'Criar guards, decorators e endpoints de login/register',
-    maxLength: 500
+    maxLength: 500,
   })
   @IsString()
   @IsOptional()
@@ -28,7 +37,7 @@ export class CreateTaskDto {
     description: 'Status inicial da tarefa',
     enum: TaskStatus,
     default: TaskStatus.PENDING,
-    example: TaskStatus.PENDING
+    example: TaskStatus.PENDING,
   })
   @IsEnum(TaskStatus)
   @IsOptional()
@@ -38,7 +47,7 @@ export class CreateTaskDto {
     description: 'Prioridade da tarefa',
     enum: Priority,
     default: Priority.MEDIUM,
-    example: Priority.HIGH
+    example: Priority.HIGH,
   })
   @IsEnum(Priority)
   @IsOptional()
@@ -46,7 +55,7 @@ export class CreateTaskDto {
 
   @ApiPropertyOptional({
     description: 'Data de vencimento da tarefa',
-    example: '2025-01-30T23:59:59.000Z'
+    example: '2025-01-30T23:59:59.000Z',
   })
   @IsDateString()
   @IsOptional()
@@ -55,7 +64,7 @@ export class CreateTaskDto {
   @ApiPropertyOptional({
     description: 'Ordem da tarefa dentro da coluna (para drag & drop)',
     minimum: 0,
-    default: 0
+    default: 0,
   })
   @IsInt()
   @Min(0)

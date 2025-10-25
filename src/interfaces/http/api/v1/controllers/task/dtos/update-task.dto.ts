@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsString,
   IsOptional,
@@ -8,8 +8,8 @@ import {
   Min,
   MaxLength,
   MinLength,
-} from 'class-validator';
-import { TaskStatus, Priority } from '@prisma/client';
+} from 'class-validator'
+import { TaskStatus, Priority } from '@prisma/client'
 
 export class UpdateTaskDto {
   @ApiPropertyOptional({
@@ -22,7 +22,7 @@ export class UpdateTaskDto {
   @IsOptional()
   @MinLength(3)
   @MaxLength(100)
-  title?: string;
+  title?: string
 
   @ApiPropertyOptional({
     description: 'Descrição detalhada da tarefa',
@@ -32,7 +32,7 @@ export class UpdateTaskDto {
   @IsString()
   @IsOptional()
   @MaxLength(500)
-  description?: string;
+  description?: string
 
   @ApiPropertyOptional({
     description: 'Status da tarefa',
@@ -41,7 +41,7 @@ export class UpdateTaskDto {
   })
   @IsEnum(TaskStatus)
   @IsOptional()
-  status?: TaskStatus;
+  status?: TaskStatus
 
   @ApiPropertyOptional({
     description: 'Prioridade da tarefa',
@@ -50,7 +50,7 @@ export class UpdateTaskDto {
   })
   @IsEnum(Priority)
   @IsOptional()
-  priority?: Priority;
+  priority?: Priority
 
   @ApiPropertyOptional({
     description: 'Data de vencimento da tarefa (envie null para remover)',
@@ -59,7 +59,7 @@ export class UpdateTaskDto {
   })
   @IsDateString()
   @IsOptional()
-  dueDate?: string | null;
+  dueDate?: string | null
 
   @ApiPropertyOptional({
     description: 'Ordem da tarefa dentro da coluna (para drag & drop)',
@@ -68,5 +68,5 @@ export class UpdateTaskDto {
   @IsInt()
   @Min(0)
   @IsOptional()
-  order?: number;
+  order?: number
 }

@@ -1,5 +1,7 @@
-
-import { BadRequestExceptionResponseOutputDto, InternalServerErrorExceptionResponseOutputDto } from '@/interfaces/http/api/v1/dtos/shared/exception.response.dto'
+import {
+  BadRequestExceptionResponseOutputDto,
+  InternalServerErrorExceptionResponseOutputDto,
+} from '@/interfaces/http/api/v1/dtos/shared/exception.response.dto'
 import { applyDecorators, Type } from '@nestjs/common'
 import { ApiOperation, ApiResponse } from '@nestjs/swagger'
 
@@ -14,12 +16,12 @@ export default function RequestResponseDocumentation(
 ) {
   const errors = params.errors
     ? params.errors.map((error) =>
-      ApiResponse({
-        status: error.status,
-        description: error.description,
-        ...(error.type ? { type: error.type } : {}),
-      }),
-    )
+        ApiResponse({
+          status: error.status,
+          description: error.description,
+          ...(error.type ? { type: error.type } : {}),
+        }),
+      )
     : []
 
   return applyDecorators(

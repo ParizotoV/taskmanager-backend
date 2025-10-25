@@ -1,6 +1,6 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { TaskStatus } from '@prisma/client';
-import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { TaskStatus } from '@prisma/client'
+import { IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator'
 
 export class UpdateStatusTaskDto {
   @ApiProperty({
@@ -9,17 +9,18 @@ export class UpdateStatusTaskDto {
     example: TaskStatus.IN_PROGRESS,
   })
   @IsEnum(TaskStatus)
-  status: TaskStatus;
+  status: TaskStatus
 
   @ApiPropertyOptional({
-    description: 'Nova posição da tarefa na coluna de destino (usado no drag & drop)',
+    description:
+      'Nova posição da tarefa na coluna de destino (usado no drag & drop)',
     minimum: 0,
     example: 0,
   })
   @IsInt()
   @Min(0)
   @IsOptional()
-  order?: number;
+  order?: number
 }
 
 export class UpdateStatusTaskQueryDto {
@@ -28,5 +29,5 @@ export class UpdateStatusTaskQueryDto {
     example: true,
   })
   @IsString()
-  id: string;
+  id: string
 }

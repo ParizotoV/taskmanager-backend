@@ -1,6 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Role } from '@prisma/client'
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength, MinLength } from 'class-validator'
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator'
 
 export class SignUpDto {
   @ApiProperty({
@@ -15,7 +23,7 @@ export class SignUpDto {
     description: 'Senha do usuário',
     example: 'senha123',
     minLength: 6,
-    maxLength: 100
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
@@ -27,7 +35,7 @@ export class SignUpDto {
     description: 'Nome completo do usuário',
     example: 'João Silva',
     minLength: 3,
-    maxLength: 100
+    maxLength: 100,
   })
   @IsString()
   @IsNotEmpty()
@@ -39,7 +47,7 @@ export class SignUpDto {
     description: 'Papel do usuário no sistema',
     enum: Role,
     default: Role.USER,
-    example: Role.USER
+    example: Role.USER,
   })
   @IsEnum(Role)
   @IsOptional()

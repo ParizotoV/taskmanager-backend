@@ -1,16 +1,16 @@
-import { TaskDao } from '@/application/task/ports/task.dao';
-import { ListTaskUseCase } from '@/application/task/usecases/list-task.usecase';
-import { ListTasksValidationError } from '@/application/task/errors/task.errors';
-import { PrismaTaskDao } from '@/infrastructure/database/daos/task.dao';
-import { ProviderValidationError } from '@/infrastructure/http/shared/provider-validation.error';
-import { ForbiddenException } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
+import { TaskDao } from '@/application/task/ports/task.dao'
+import { ListTaskUseCase } from '@/application/task/usecases/list-task.usecase'
+import { ListTasksValidationError } from '@/application/task/errors/task.errors'
+import { PrismaTaskDao } from '@/infrastructure/database/daos/task.dao'
+import { ProviderValidationError } from '@/infrastructure/http/shared/provider-validation.error'
+import { ForbiddenException } from '@nestjs/common'
+import { Test } from '@nestjs/testing'
 
-jest.mock('@/infrastructure/database/daos/task.dao');
+jest.mock('@/infrastructure/database/daos/task.dao')
 
 describe('ListTaskUseCase', () => {
-  let useCase: ListTaskUseCase;
-  let taskDao: jest.Mocked<TaskDao>;
+  let useCase: ListTaskUseCase
+  let taskDao: jest.Mocked<TaskDao>
 
   const mockPaginatedResponse = {
     data: [
@@ -40,7 +40,7 @@ describe('ListTaskUseCase', () => {
       hasNextPage: false,
       hasPreviousPage: false,
     },
-  };
+  }
 
   beforeEach(async () => {
     const moduleFixture = await Test.createTestingModule({
@@ -51,58 +51,64 @@ describe('ListTaskUseCase', () => {
         },
         ListTaskUseCase,
       ],
-    }).compile();
+    }).compile()
 
-    useCase = moduleFixture.get(ListTaskUseCase);
-    taskDao = moduleFixture.get(TaskDao);
-  });
+    useCase = moduleFixture.get(ListTaskUseCase)
+    taskDao = moduleFixture.get(TaskDao)
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    jest.clearAllMocks()
+  })
 
   describe('execute', () => {
     it('should list tasks for USER (only their own)', async () => {
       // Arrange
-      const input = { page: 1, limit: 10 };
-      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' };
-      taskDao.findWithFilters = jest.fn().mockResolvedValue(mockPaginatedResponse);
+      const input = { page: 1, limit: 10 }
+      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' }
+      taskDao.findWithFilters = jest
+        .fn()
+        .mockResolvedValue(mockPaginatedResponse)
 
       // Act
-      const result = await useCase.execute(input, user);
+      const result = await useCase.execute(input, user)
 
       // Assert
-      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, user.id);
-      expect(result).toEqual(mockPaginatedResponse);
-    });
+      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, user.id)
+      expect(result).toEqual(mockPaginatedResponse)
+    })
 
     it('should list all tasks for ADMIN when no userId filter is provided', async () => {
       // Arrange
-      const input = { page: 1, limit: 10 };
-      const user = { id: 'admin-1', email: 'admin@test.com', role: 'ADMIN' };
-      taskDao.findWithFilters = jest.fn().mockResolvedValue(mockPaginatedResponse);
+      const input = { page: 1, limit: 10 }
+      const user = { id: 'admin-1', email: 'admin@test.com', role: 'ADMIN' }
+      taskDao.findWithFilters = jest
+        .fn()
+        .mockResolvedValue(mockPaginatedResponse)
 
       // Act
-      const result = await useCase.execute(input, user);
+      const result = await useCase.execute(input, user)
 
       // Assert
-      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, undefined);
-      expect(result).toEqual(mockPaginatedResponse);
-    });
+      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, undefined)
+      expect(result).toEqual(mockPaginatedResponse)
+    })
 
     it('should list filtered tasks for ADMIN when userId filter is provided', async () => {
       // Arrange
-      const input = { page: 1, limit: 10, userId: 'user-1' };
-      const user = { id: 'admin-1', email: 'admin@test.com', role: 'ADMIN' };
-      taskDao.findWithFilters = jest.fn().mockResolvedValue(mockPaginatedResponse);
+      const input = { page: 1, limit: 10, userId: 'user-1' }
+      const user = { id: 'admin-1', email: 'admin@test.com', role: 'ADMIN' }
+      taskDao.findWithFilters = jest
+        .fn()
+        .mockResolvedValue(mockPaginatedResponse)
 
       // Act
-      const result = await useCase.execute(input, user);
+      const result = await useCase.execute(input, user)
 
       // Assert
-      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, 'user-1');
-      expect(result).toEqual(mockPaginatedResponse);
-    });
+      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, 'user-1')
+      expect(result).toEqual(mockPaginatedResponse)
+    })
 
     it('should list tasks with filters (status, priority, search)', async () => {
       // Arrange
@@ -112,17 +118,19 @@ describe('ListTaskUseCase', () => {
         status: 'PENDING' as const,
         priority: 'HIGH' as const,
         search: 'test',
-      };
-      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' };
-      taskDao.findWithFilters = jest.fn().mockResolvedValue(mockPaginatedResponse);
+      }
+      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' }
+      taskDao.findWithFilters = jest
+        .fn()
+        .mockResolvedValue(mockPaginatedResponse)
 
       // Act
-      const result = await useCase.execute(input, user);
+      const result = await useCase.execute(input, user)
 
       // Assert
-      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, user.id);
-      expect(result).toEqual(mockPaginatedResponse);
-    });
+      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, user.id)
+      expect(result).toEqual(mockPaginatedResponse)
+    })
 
     it('should list tasks with date range filters', async () => {
       // Arrange
@@ -131,17 +139,19 @@ describe('ListTaskUseCase', () => {
         limit: 10,
         dueDateFrom: '2024-01-01',
         dueDateTo: '2024-12-31',
-      };
-      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' };
-      taskDao.findWithFilters = jest.fn().mockResolvedValue(mockPaginatedResponse);
+      }
+      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' }
+      taskDao.findWithFilters = jest
+        .fn()
+        .mockResolvedValue(mockPaginatedResponse)
 
       // Act
-      const result = await useCase.execute(input, user);
+      const result = await useCase.execute(input, user)
 
       // Assert
-      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, user.id);
-      expect(result).toEqual(mockPaginatedResponse);
-    });
+      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, user.id)
+      expect(result).toEqual(mockPaginatedResponse)
+    })
 
     it('should list overdue tasks', async () => {
       // Arrange
@@ -149,57 +159,61 @@ describe('ListTaskUseCase', () => {
         page: 1,
         limit: 10,
         overdue: true,
-      };
-      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' };
-      taskDao.findWithFilters = jest.fn().mockResolvedValue(mockPaginatedResponse);
+      }
+      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' }
+      taskDao.findWithFilters = jest
+        .fn()
+        .mockResolvedValue(mockPaginatedResponse)
 
       // Act
-      const result = await useCase.execute(input, user);
+      const result = await useCase.execute(input, user)
 
       // Assert
-      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, user.id);
-      expect(result).toEqual(mockPaginatedResponse);
-    });
+      expect(taskDao.findWithFilters).toHaveBeenCalledWith(input, user.id)
+      expect(result).toEqual(mockPaginatedResponse)
+    })
 
     it('should throw ForbiddenException when USER tries to filter by userId', async () => {
       // Arrange
-      const input = { page: 1, limit: 10, userId: 'other-user' };
-      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' };
+      const input = { page: 1, limit: 10, userId: 'other-user' }
+      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' }
 
       // Act & Assert
       await expect(useCase.execute(input, user)).rejects.toThrow(
         ForbiddenException,
-      );
+      )
       await expect(useCase.execute(input, user)).rejects.toThrow(
         'Apenas ADMIN pode filtrar por userId',
-      );
-    });
+      )
+    })
 
     it('should throw ListTasksValidationError when DAO throws ProviderValidationError', async () => {
       // Arrange
-      const input = { page: 1, limit: 10 };
-      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' };
-      const error = new ProviderValidationError('Database error');
-      taskDao.findWithFilters = jest.fn().mockRejectedValue(error);
+      const input = { page: 1, limit: 10 }
+      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' }
+      const error = new ProviderValidationError('Database error')
+      taskDao.findWithFilters = jest.fn().mockRejectedValue(error)
 
       // Act & Assert
       await expect(useCase.execute(input, user)).rejects.toThrow(
         ListTasksValidationError,
-      );
-      await expect(useCase.execute(input, user)).rejects.toThrow('Database error');
-    });
+      )
+      await expect(useCase.execute(input, user)).rejects.toThrow(
+        'Database error',
+      )
+    })
 
     it('should rethrow non-ProviderValidationError errors', async () => {
       // Arrange
-      const input = { page: 1, limit: 10 };
-      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' };
-      const error = new Error('Unexpected error');
-      taskDao.findWithFilters = jest.fn().mockRejectedValue(error);
+      const input = { page: 1, limit: 10 }
+      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' }
+      const error = new Error('Unexpected error')
+      taskDao.findWithFilters = jest.fn().mockRejectedValue(error)
 
       // Act & Assert
       await expect(useCase.execute(input, user)).rejects.toThrow(
         'Unexpected error',
-      );
-    });
-  });
-});
+      )
+    })
+  })
+})

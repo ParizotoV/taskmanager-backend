@@ -1,3 +1,3 @@
 export type GetTaskInputDto = {
-  id: string;
+  id: string
 }

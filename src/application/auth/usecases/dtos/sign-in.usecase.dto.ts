@@ -1,14 +1,14 @@
 export type SignInInputDto = {
-  email: string;
-  password: string;
+  email: string
+  password: string
 }
 
 export type SignInOutputDto = {
-  accessToken: string;
+  accessToken: string
   user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
+    id: string
+    email: string
+    name: string
+    role: string
+  }
 }
