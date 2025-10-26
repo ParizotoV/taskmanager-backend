@@ -29,7 +29,7 @@ import {
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger'
 
 @ApiTags('Tasks')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth')
 @Controller('tasks')
 @UseGuards(JwtAuthGuard)
 export class TaskController {

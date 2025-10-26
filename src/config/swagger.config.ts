@@ -3,7 +3,18 @@ import { DocumentBuilder } from '@nestjs/swagger'
 export const swaggerConfig = new DocumentBuilder()
   .setTitle('Backend API')
   .setVersion('1.0.0')
-  .addServer('http://localhost:4006', 'Servidor de Desenvolvimento')
+  .addServer('http://localhost:4005', 'Servidor de Desenvolvimento')
+  .addBearerAuth(
+    {
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'JWT',
+      description: 'Enter JWT token',
+      in: 'header',
+    },
+    'JWT-auth',
+  )
   .build()
 
 export const swaggerOptions = {
