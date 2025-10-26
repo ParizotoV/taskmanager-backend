@@ -6,8 +6,13 @@ import {
   ListTaskInputDto,
   PaginatedTasksOutputDto,
 } from '@/application/task/usecases/dtos/list-task.usecase.dto'
+import {
+  KanbanFiltersInputDto,
+  KanbanBoardOutputDto,
+} from '@/application/task/usecases/dtos/kanban.usecase.dto'
 import { UpdateTaskInputDto } from '@/application/task/usecases/dtos/update-task.usecase.dto'
 import { GetTaskUseCase } from '@/application/task/usecases/get-task.usecase'
+import { GetKanbanUseCase } from '@/application/task/usecases/get-kanban.usecase'
 import { ListTaskUseCase } from '@/application/task/usecases/list-task.usecase'
 import { UpdateStatusTaskUseCase } from '@/application/task/usecases/update-status-task.usecase'
 import { UpdateTaskUseCase } from '@/application/task/usecases/update-task.usecase'
@@ -20,6 +25,7 @@ export class TaskService {
     private readonly createTaskUseCase: CreateTaskUseCase,
     private readonly deleteTaskUseCase: DeleteTaskUseCase,
     private readonly getTaskUseCase: GetTaskUseCase,
+    private readonly getKanbanUseCase: GetKanbanUseCase,
     private readonly listTaskUseCase: ListTaskUseCase,
     private readonly updateStatusTaskUseCase: UpdateStatusTaskUseCase,
     private readonly updateTaskUseCase: UpdateTaskUseCase,
@@ -67,5 +73,12 @@ export class TaskService {
       user,
       order,
     )
+  }
+
+  async getKanban(
+    filters: KanbanFiltersInputDto,
+    user: CurrentUserData,
+  ): Promise<KanbanBoardOutputDto> {
+    return await this.getKanbanUseCase.execute(filters, user)
   }
 }

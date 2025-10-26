@@ -1,6 +1,7 @@
 import { TaskService } from '@/application/task/service/task.service'
 import { CreateTaskUseCase } from '@/application/task/usecases/create-task.usecase'
 import { DeleteTaskUseCase } from '@/application/task/usecases/delete-task.usecase'
+import { GetKanbanUseCase } from '@/application/task/usecases/get-kanban.usecase'
 import { GetTaskUseCase } from '@/application/task/usecases/get-task.usecase'
 import { ListTaskUseCase } from '@/application/task/usecases/list-task.usecase'
 import { UpdateStatusTaskUseCase } from '@/application/task/usecases/update-status-task.usecase'
@@ -9,6 +10,7 @@ import { Test, TestingModule } from '@nestjs/testing'
 
 jest.mock('@/application/task/usecases/create-task.usecase')
 jest.mock('@/application/task/usecases/delete-task.usecase')
+jest.mock('@/application/task/usecases/get-kanban.usecase')
 jest.mock('@/application/task/usecases/get-task.usecase')
 jest.mock('@/application/task/usecases/list-task.usecase')
 jest.mock('@/application/task/usecases/update-status-task.usecase')
@@ -18,6 +20,7 @@ describe('TaskService', () => {
   let service: TaskService
   let createTaskUseCase: jest.Mocked<CreateTaskUseCase>
   let deleteTaskUseCase: jest.Mocked<DeleteTaskUseCase>
+  let getKanbanUseCase: jest.Mocked<GetKanbanUseCase>
   let getTaskUseCase: jest.Mocked<GetTaskUseCase>
   let listTaskUseCase: jest.Mocked<ListTaskUseCase>
   let updateStatusTaskUseCase: jest.Mocked<UpdateStatusTaskUseCase>
@@ -29,6 +32,7 @@ describe('TaskService', () => {
         TaskService,
         CreateTaskUseCase,
         DeleteTaskUseCase,
+        GetKanbanUseCase,
         GetTaskUseCase,
         ListTaskUseCase,
         UpdateStatusTaskUseCase,
@@ -39,6 +43,7 @@ describe('TaskService', () => {
     service = module.get<TaskService>(TaskService)
     createTaskUseCase = module.get(CreateTaskUseCase)
     deleteTaskUseCase = module.get(DeleteTaskUseCase)
+    getKanbanUseCase = module.get(GetKanbanUseCase)
     getTaskUseCase = module.get(GetTaskUseCase)
     listTaskUseCase = module.get(ListTaskUseCase)
     updateStatusTaskUseCase = module.get(UpdateStatusTaskUseCase)
@@ -194,6 +199,76 @@ describe('TaskService', () => {
         user,
         undefined,
       )
+      expect(result).toEqual(expectedResult)
+    })
+  })
+
+  describe('getKanban', () => {
+    it('should call GetKanbanUseCase.execute with correct parameters', async () => {
+      const filters = { search: 'test', priority: 'HIGH' as const }
+      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' }
+      const expectedResult = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+          },
+        ],
+        totalTasks: 0,
+      }
+
+      jest
+        .spyOn(getKanbanUseCase, 'execute')
+        .mockResolvedValue(expectedResult as any)
+
+      const result = await service.getKanban(filters, user)
+
+      expect(getKanbanUseCase.execute).toHaveBeenCalledWith(filters, user)
+      expect(result).toEqual(expectedResult)
+    })
+
+    it('should call GetKanbanUseCase.execute without filters', async () => {
+      const filters = {}
+      const user = { id: 'user-1', email: 'test@test.com', role: 'USER' }
+      const expectedResult = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [{ id: 'task-1', title: 'Test', status: 'PENDING' }],
+            count: 1,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+          },
+        ],
+        totalTasks: 1,
+      }
+
+      jest
+        .spyOn(getKanbanUseCase, 'execute')
+        .mockResolvedValue(expectedResult as any)
+
+      const result = await service.getKanban(filters, user)
+
+      expect(getKanbanUseCase.execute).toHaveBeenCalledWith(filters, user)
       expect(result).toEqual(expectedResult)
     })
   })

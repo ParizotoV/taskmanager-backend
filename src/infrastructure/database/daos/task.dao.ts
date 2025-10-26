@@ -4,6 +4,11 @@ import {
   ListTaskInputDto,
   PaginatedTasksOutputDto,
 } from '@/application/task/usecases/dtos/list-task.usecase.dto'
+import {
+  KanbanFiltersInputDto,
+  KanbanBoardOutputDto,
+  KanbanColumnOutputDto,
+} from '@/application/task/usecases/dtos/kanban.usecase.dto'
 import { UpdateTaskInputDto } from '@/application/task/usecases/dtos/update-task.usecase.dto'
 import { PRISMA, PrismaService } from '@/infrastructure/database/prisma'
 import { Inject, Injectable } from '@nestjs/common'
@@ -149,6 +154,76 @@ export class PrismaTaskDao implements TaskDao {
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       },
+    }
+  }
+
+  async findForKanban(
+    userId: string,
+    filters?: KanbanFiltersInputDto,
+  ): Promise<KanbanBoardOutputDto> {
+    const baseWhere: Prisma.TaskWhereInput = {
+      userId,
+      ...(filters?.priority && { priority: filters.priority }),
+      ...(filters?.search && {
+        OR: [
+          { title: { contains: filters.search, mode: 'insensitive' } },
+          { description: { contains: filters.search, mode: 'insensitive' } },
+        ],
+      }),
+      ...(filters?.dueDateFrom || filters?.dueDateTo
+        ? {
+            dueDate: {
+              ...(filters.dueDateFrom && { gte: new Date(filters.dueDateFrom) }),
+              ...(filters.dueDateTo && { lte: new Date(filters.dueDateTo) }),
+            },
+          }
+        : {}),
+      ...(filters?.overdue && {
+        dueDate: { lt: new Date() },
+        status: { not: TaskStatus.COMPLETED },
+      }),
+    }
+
+    const statuses = Object.values(TaskStatus)
+
+    const columns: KanbanColumnOutputDto[] = await Promise.all(
+      statuses.map(async (status) => {
+        const where: Prisma.TaskWhereInput = {
+          ...baseWhere,
+          status,
+        }
+
+        const tasks = await this.prisma.task.findMany({
+          where,
+          orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+          ...(filters?.maxPerColumn && { take: filters.maxPerColumn }),
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        })
+
+        const count = await this.prisma.task.count({ where })
+
+        return {
+          status,
+          tasks,
+          count,
+          ...(filters?.maxPerColumn && { wipLimit: filters.maxPerColumn }),
+        }
+      }),
+    )
+
+    const totalTasks = columns.reduce((sum, column) => sum + column.count, 0)
+
+    return {
+      columns,
+      totalTasks,
     }
   }
 

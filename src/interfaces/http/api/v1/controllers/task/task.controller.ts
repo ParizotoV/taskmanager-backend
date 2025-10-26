@@ -4,6 +4,7 @@ import { UpdateTaskDto } from '@/interfaces/http/api/v1/controllers/task/dtos/up
 import { DeleteTaskDto } from '@/interfaces/http/api/v1/controllers/task/dtos/delete-task.dto'
 import { GetTaskDto } from '@/interfaces/http/api/v1/controllers/task/dtos/get-task.dto'
 import { ListTasksQueryDto } from '@/interfaces/http/api/v1/controllers/task/dtos/list-task.dto'
+import { GetKanbanQueryDto } from '@/interfaces/http/api/v1/controllers/task/dtos/get-kanban.dto'
 import {
   UpdateStatusTaskDto,
   UpdateStatusTaskQueryDto,
@@ -77,6 +78,21 @@ export class TaskController {
     @CurrentUser() user: CurrentUserData,
   ) {
     return await this.taskService.listTask(query, user)
+  }
+
+  @RequestResponseDocumentation({
+    success: {
+      status: 200,
+      description: 'Quadro Kanban obtido com sucesso',
+    },
+    summary: 'Obtém o quadro Kanban com todas as tarefas agrupadas por status',
+  })
+  @Get('kanban/board')
+  async getKanban(
+    @Query() query: GetKanbanQueryDto,
+    @CurrentUser() user: CurrentUserData,
+  ) {
+    return await this.taskService.getKanban(query, user)
   }
 
   @RequestResponseDocumentation({

@@ -391,4 +391,342 @@ describe('TaskController', () => {
       expect(taskService.deleteTask).toHaveBeenCalledWith('task-1', mockUser)
     })
   })
+
+  describe('getKanban', () => {
+    it('should get kanban board without filters', async () => {
+      const query = {}
+      const mockKanbanBoard = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [mockTask],
+            count: 1,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+          },
+        ],
+        totalTasks: 1,
+      }
+
+      jest
+        .spyOn(taskService, 'getKanban')
+        .mockResolvedValue(mockKanbanBoard as any)
+
+      const result = await controller.getKanban(query, mockUser)
+
+      expect(taskService.getKanban).toHaveBeenCalledWith(query, mockUser)
+      expect(result).toEqual(mockKanbanBoard)
+      expect(result.totalTasks).toBe(1)
+      expect(result.columns).toHaveLength(3)
+    })
+
+    it('should get kanban board with search filter', async () => {
+      const query = { search: 'test task' }
+      const mockKanbanBoard = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [mockTask],
+            count: 1,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+          },
+        ],
+        totalTasks: 1,
+      }
+
+      jest
+        .spyOn(taskService, 'getKanban')
+        .mockResolvedValue(mockKanbanBoard as any)
+
+      const result = await controller.getKanban(query, mockUser)
+
+      expect(taskService.getKanban).toHaveBeenCalledWith(query, mockUser)
+      expect(result).toEqual(mockKanbanBoard)
+    })
+
+    it('should get kanban board with priority filter', async () => {
+      const query = { priority: 'HIGH' as const }
+      const mockKanbanBoard = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [{ ...mockTask, priority: 'HIGH' as const }],
+            count: 1,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+          },
+        ],
+        totalTasks: 1,
+      }
+
+      jest
+        .spyOn(taskService, 'getKanban')
+        .mockResolvedValue(mockKanbanBoard as any)
+
+      const result = await controller.getKanban(query, mockUser)
+
+      expect(taskService.getKanban).toHaveBeenCalledWith(query, mockUser)
+      expect(result.columns[1].tasks[0].priority).toBe('HIGH')
+    })
+
+    it('should get kanban board with date range filters', async () => {
+      const query = {
+        dueDateFrom: '2024-01-01',
+        dueDateTo: '2024-12-31',
+      }
+      const mockKanbanBoard = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [
+              {
+                ...mockTask,
+                dueDate: new Date('2024-06-15'),
+              },
+            ],
+            count: 1,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+          },
+        ],
+        totalTasks: 1,
+      }
+
+      jest
+        .spyOn(taskService, 'getKanban')
+        .mockResolvedValue(mockKanbanBoard as any)
+
+      const result = await controller.getKanban(query, mockUser)
+
+      expect(taskService.getKanban).toHaveBeenCalledWith(query, mockUser)
+      expect(result).toEqual(mockKanbanBoard)
+    })
+
+    it('should get kanban board with overdue filter', async () => {
+      const query = { overdue: true }
+      const overdueTask = {
+        ...mockTask,
+        dueDate: new Date('2020-01-01'),
+        status: 'PENDING' as const,
+      }
+      const mockKanbanBoard = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [overdueTask],
+            count: 1,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+          },
+        ],
+        totalTasks: 1,
+      }
+
+      jest
+        .spyOn(taskService, 'getKanban')
+        .mockResolvedValue(mockKanbanBoard as any)
+
+      const result = await controller.getKanban(query, mockUser)
+
+      expect(taskService.getKanban).toHaveBeenCalledWith(query, mockUser)
+      expect(result.columns[0].tasks[0].dueDate).toEqual(
+        new Date('2020-01-01'),
+      )
+    })
+
+    it('should get kanban board with WIP limit (maxPerColumn)', async () => {
+      const query = { maxPerColumn: 5 }
+      const mockKanbanBoard = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: Array(5).fill(mockTask),
+            count: 10,
+            wipLimit: 5,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+            wipLimit: 5,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+            wipLimit: 5,
+          },
+        ],
+        totalTasks: 10,
+      }
+
+      jest
+        .spyOn(taskService, 'getKanban')
+        .mockResolvedValue(mockKanbanBoard as any)
+
+      const result = await controller.getKanban(query, mockUser)
+
+      expect(taskService.getKanban).toHaveBeenCalledWith(query, mockUser)
+      expect(result.columns[0].wipLimit).toBe(5)
+      expect(result.columns[0].tasks).toHaveLength(5)
+      expect(result.columns[0].count).toBe(10)
+    })
+
+    it('should get empty kanban board when no tasks exist', async () => {
+      const query = {}
+      const mockKanbanBoard = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+          },
+        ],
+        totalTasks: 0,
+      }
+
+      jest
+        .spyOn(taskService, 'getKanban')
+        .mockResolvedValue(mockKanbanBoard as any)
+
+      const result = await controller.getKanban(query, mockUser)
+
+      expect(taskService.getKanban).toHaveBeenCalledWith(query, mockUser)
+      expect(result.totalTasks).toBe(0)
+      expect(result.columns.every((col) => col.count === 0)).toBe(true)
+    })
+
+    it('should get kanban board for admin with userId filter', async () => {
+      const adminUser = { id: 'admin-1', email: 'admin@test.com', role: 'ADMIN' }
+      const query = { userId: 'user-1' }
+      const mockKanbanBoard = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [mockTask],
+            count: 1,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+          },
+        ],
+        totalTasks: 1,
+      }
+
+      jest
+        .spyOn(taskService, 'getKanban')
+        .mockResolvedValue(mockKanbanBoard as any)
+
+      const result = await controller.getKanban(query, adminUser)
+
+      expect(taskService.getKanban).toHaveBeenCalledWith(query, adminUser)
+      expect(result).toEqual(mockKanbanBoard)
+    })
+
+    it('should get kanban board with multiple filters combined', async () => {
+      const query = {
+        search: 'important',
+        priority: 'HIGH' as const,
+        overdue: true,
+        maxPerColumn: 3,
+      }
+      const mockKanbanBoard = {
+        columns: [
+          {
+            status: 'PENDING',
+            tasks: [
+              {
+                ...mockTask,
+                priority: 'HIGH' as const,
+                dueDate: new Date('2020-01-01'),
+              },
+            ],
+            count: 5,
+            wipLimit: 3,
+          },
+          {
+            status: 'IN_PROGRESS',
+            tasks: [],
+            count: 0,
+            wipLimit: 3,
+          },
+          {
+            status: 'COMPLETED',
+            tasks: [],
+            count: 0,
+            wipLimit: 3,
+          },
+        ],
+        totalTasks: 5,
+      }
+
+      jest
+        .spyOn(taskService, 'getKanban')
+        .mockResolvedValue(mockKanbanBoard as any)
+
+      const result = await controller.getKanban(query, mockUser)
+
+      expect(taskService.getKanban).toHaveBeenCalledWith(query, mockUser)
+      expect(result.columns[0].tasks[0].priority).toBe('HIGH')
+      expect(result.columns[0].wipLimit).toBe(3)
+    })
+  })
 })

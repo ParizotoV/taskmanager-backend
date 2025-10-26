@@ -4,6 +4,10 @@ import {
   ListTaskInputDto,
   PaginatedTasksOutputDto,
 } from '@/application/task/usecases/dtos/list-task.usecase.dto'
+import {
+  KanbanFiltersInputDto,
+  KanbanBoardOutputDto,
+} from '@/application/task/usecases/dtos/kanban.usecase.dto'
 import { Task, TaskStatus } from '@prisma/client'
 
 export abstract class TaskDao {
@@ -15,6 +19,10 @@ export abstract class TaskDao {
     input: ListTaskInputDto,
     userId?: string,
   ): Promise<PaginatedTasksOutputDto<Task>>
+  abstract findForKanban(
+    userId: string,
+    filters?: KanbanFiltersInputDto,
+  ): Promise<KanbanBoardOutputDto>
   abstract updateTask(id: string, input: UpdateTaskInputDto): Promise<Task>
   abstract updateStatus(
     id: string,
